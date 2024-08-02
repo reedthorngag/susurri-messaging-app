@@ -6,11 +6,12 @@
 class ConnectionPool {
 
     private:
-
+        std::unordered_map<std::string, Connection*> connections;
 
     public:
         void addConnection(Connection* con);
-        void connectionExists(string userHash);
-
-}
+        Connection* getConnection(std::string userHash);
+        
+    ~ConnectionPool();
+};
 
