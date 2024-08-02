@@ -4,40 +4,41 @@ Server is to be considered compromised at all times
 
 all messages are encrypted at all times
 
-client side data is stored encrypted and can be backed up to icloud and stuff
+Client side data:
+    client side data is stored encrypted and can be backed up to icloud and stuff
 
-client app requires login to decrypt the client data
+    client app requires login to decrypt the client data, the data file name is a hash of the users username and password
+    And the data is encrypted with AES 256 using the users password
+
+Problems:
+        Once a username hash is cracked then it doesn't have perfect forward security
+
+        more simple usernames will be trivial to crack (users will be made aware of this, and users who care can use a stronger username)
 
 The Username:
-    The username is used to connect to other people
-    The server stores a hash of the password with a global salt
+    The username is used to message people
+    The server stores a hash of the username with a global salt
     The salt should rotate regularly
 
     maybe use a password hashing algo to make it harder to crack
 
-    Problems:
-        Once a username hash is cracked, then it doesn't have perfect forward security
-        more simple usernames will be trivial to crack
-
-        usernames need an associated password so they can't be stolen
-        this makes rotating the username salt effectively useless, as a compromised server will
-        see that the password is the same, and if the password changes, both the new and old password
-        would need to be provided, which links the old and new username.
-
 
 Giving people your username/contact info:
 
-    One person will send a public key
+    Over another messaging service:
+        One person will send a public key, the other then encrypts their username with it, and sends it back
+    
+    In person:
+        Just give them your username, and make sure they get the spelling right
 
 
 DMs:
 
-    first message sent is the opposite users username (sent automatically), this ensures you are talking to who you are meant to,
-    because they wont send the right username if you aren't.
+    first message sent is the opposite users username (sent automatically), this ensures you are talking to who you are meant to.
+    This doesn't guarantee you are talking to the right person, but it makes it harder for an attacker as this 
+    forces them to brute force your username or find it out another way.
 
     It doesn't have to be your username.
 
-
-Problems:
 
 

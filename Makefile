@@ -1,19 +1,17 @@
 
-
 SHELL := bash
 
 all: build
 
 CFLAGS = -Wall -W -Werror -Wno-unused-parameter -Wno-unused-variable
-DIRS = src/
+DIRS = ./
 SRC = $(foreach dir,$(DIRS), $(wildcard $(dir)*.cpp))
 
 build: $(SRC)
-	g++ $(CFLAGS) $(SRC) -o bin/server
+	g++ $(CFLAGS) $(SRC) -o test
 
 clean:
-	rm bin/server
-
+	rm test
 
 
 
