@@ -1,0 +1,43 @@
+
+Server is to be considered compromised at all times
+
+
+all messages are encrypted at all times
+
+client side data is stored encrypted and can be backed up to icloud and stuff
+
+client app requires login to decrypt the client data
+
+The Username:
+    The username is used to connect to other people
+    The server stores a hash of the password with a global salt
+    The salt should rotate regularly
+
+    maybe use a password hashing algo to make it harder to crack
+
+    Problems:
+        Once a username hash is cracked, then it doesn't have perfect forward security
+        more simple usernames will be trivial to crack
+
+        usernames need an associated password so they can't be stolen
+        this makes rotating the username salt effectively useless, as a compromised server will
+        see that the password is the same, and if the password changes, both the new and old password
+        would need to be provided, which links the old and new username.
+
+
+Giving people your username/contact info:
+
+    One person will send a public key
+
+
+DMs:
+
+    first message sent is the opposite users username (sent automatically), this ensures you are talking to who you are meant to,
+    because they wont send the right username if you aren't.
+
+    It doesn't have to be your username.
+
+
+Problems:
+
+
