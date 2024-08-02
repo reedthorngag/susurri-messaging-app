@@ -8,7 +8,8 @@ void ConnectionPool::addConnection(Connection* con) {
 }
 
 Connection* ConnectionPool::getConnection(std::string userHash) {
-
+    if (auto key = this->connections.find(userHash); key != this->connections.end()) return key->second;
+    return nullptr;
 }
 
 ConnectionPool::~ConnectionPool() {
