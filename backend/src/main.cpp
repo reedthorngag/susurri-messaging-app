@@ -13,20 +13,11 @@
 #include "connections/connection_pool.hpp"
 
 const int port = 9852;
-const char* port = "9852";
+const char* portStr = "9852";
 int sock = 0;
 ConnectionPool* connectionPool;
 
 bool running = true;
-
-void handle_sigint([[maybe_unused]] int s) {
-    printf("\nKilling server...\n");
-    running = false;
-    for (int i = 5; i--;) {
-        usleep(100000);
-        selfConnect();
-    }
-}
 
 void selfConnect() {
 
@@ -54,8 +45,17 @@ void selfConnect() {
 
 }
 
+void handle_sigint([[maybe_unused]] int s) {
+    printf("\nKilling server...\n");
+    running = false;
+    for (int i = 5; i--;) {
+        usleep(100000);
+        selfConnect();
+    }
+}
+
 void acceptConnection() {
-    
+
 }
 
 int main() {

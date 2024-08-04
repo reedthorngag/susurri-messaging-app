@@ -4,6 +4,21 @@ Server is to be considered compromised at all times
 
 all messages are encrypted at all times
 
+Problems:
+    Knowing a username makes it possible for anyone to trace every action of that user
+
+    Having a "root" userhash and pubkey makes any first contact where the contacter fetches the pubkey
+    and then sends a message then links that current userhash to the root user, partially breaking anonymity
+
+    Getting old unread messages links every hash since the last time online together/to the current hash
+    possibly use a background process that regularly connects and fetches messages after each hash change.
+    this can potentially be linked if the ip doesnt change though.
+    
+Solutions/ideas:
+
+    Offer the potential to proxy through tor
+
+
 Client side data:
     client side data is stored encrypted and can be backed up to icloud and stuff
 
