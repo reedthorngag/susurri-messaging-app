@@ -48,7 +48,18 @@ void DB::loadData(char* fileName) {
 
     file.read(buf.data, 8);
 
-    for (int i = buf.int32; --i)
+    this->db.userMap.reserve(buf.int64);
+
+    for (int i = buf.int32; --i; ) {
+        UserHash hash{};
+        file.read(hash, USER_HASH_LEN);
+        file.read(buf.data, 4);
+        RootPubKey key{buf.int32, new char[buf.int32]};
+        file.read(key.data, key.len);
+        this->rootPubKeys.userMap.insert(std::make_pair(hash,key));
+    }
+
+    
 
 }
 
@@ -68,7 +79,8 @@ void DB::saveData(char* fileName) {
     writeSize(this->rootPubKeys.userMap.size());
     for (auto& [user, rootPubKey] : this->rootPubKeys.userMap) {
         file.write(user, USER_HASH_LEN);
-        file << rootPubKey->len;
+        size = rootPubKey->len;
+        file.write(((char*)&size)+4,4);
         file.write(rootPubKey->data, rootPubKey->len);
     }
     

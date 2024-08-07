@@ -21,13 +21,13 @@ template <typename T>
 class UserMap {
 
     public:
-        std::unordered_map<UserHash, T*> userMap;
+        std::unordered_map<(char*), T> userMap;
 
         T* getUserOrCreate(UserHash user) {
             if (auto key = userMap.find(user); key != userMap.end()) {
                 return key;
             }
-            T child = new T;
+            T child{};
             userMap.insert(std::make_pair(user, child));
             return child;
         }
