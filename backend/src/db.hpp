@@ -2,18 +2,37 @@
 #include <string>
 #include <vector>
 
-struct message {
-    uint64_t time;
-    char* message;
+const int USER_HASH_LEN = 64;
+
+typedef char UserHash[USER_HASH_LEN];
+
+struct Message {
+    int64_t time;
+    int len;
+    char* data;
+};
+
+struct RootPubKey {
+    int len;
+    char* data;
 };
 
 template <typename T>
 class UserMap {
 
     public:
-        std::unordered_map<std::string, T> userMap;
+        std::unordered_map<UserHash, T*> userMap;
 
-        T getUser(std::string user) {
+        T* getUserOrCreate(UserHash user) {
+            if (auto key = userMap.find(user); key != userMap.end()) {
+                return key;
+            }
+            T child = new T;
+            userMap.insert(std::make_pair(user, child));
+            return child;
+        }
+
+        T* getUser(UserHash user) {
             if (auto key = userMap.find(user); key != userMap.end()) {
                 return key;
             }
@@ -25,15 +44,18 @@ class UserMap {
 class DB {
 
     private:
-        UserMap<UserMap<std::vector<message>*>*> db;
-        std::unordered_map<std::string, char*> rootPubKeys;
+        UserMap<UserMap<std::vector<Message>>> db;
+        UserMap<RootPubKey> rootPubKeys;
 
     public:
 
-        void send_message(std::string from, std::string to, char* message);
-        std::unordered_map<std::string, std::vector<message>*>* getMessages(std::string user);
+        void send_message(UserHash from, UserHash to, int len, char* message);
+        UserMap<std::vector<Message>>* getMessages(UserHash user);
 
-        char* getRootPubKey(std::string user);
+        RootPubKey* getRootPubKey(UserHash user);
+
+        void saveData(char* fileName);
+        void loadData(char* fileName);
 
         DB();
         ~DB();
