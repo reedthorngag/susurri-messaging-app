@@ -10,12 +10,13 @@
 #include <csignal>
 #include <fcntl.h>
 
-#include "connections/connection_pool.hpp"
+#include "global_state.hpp"
 
 const int port = 9852;
 const char* portStr = "9852";
 int sock = 0;
-ConnectionPool* connectionPool;
+
+State state{};
 
 bool running = true;
 
@@ -60,7 +61,8 @@ void acceptConnection() {
 
 int main() {
 
-    connectionPool = new ConnectionPool();
+    state.connPool = new ConnectionPool();
+    state.db = new DB();
 
     struct sigaction sigIntHandler;
 
@@ -95,11 +97,39 @@ int main() {
         return 1;
     }
 
+    char* a = (char*)"hello";
+    char* b = (char*)"goodb";
+
+    char* h1 = (char*)"hello1";
+    char* h2 = (char*)"hello2";
+
+    char* pk1 = (char*)"123";
+    char* pk2 = (char*)"456";
+
+    state.db->send_message(UserHash(a),UserHash(b), 6, h1);
+    state.db->send_message(UserHash(b),UserHash(a), 6, h2);
+
+    state.db->setRootPubKey(UserHash(a),RootPubKey{3, pk1});
+    state.db->setRootPubKey(UserHash(b),RootPubKey{3, pk2});
+
+    char* t = (char*)"testdb";
+
+    state.db->saveData(t);
+
+    delete state.db;
+
+    state.db = new DB();
+
+    state.db->loadData(t);
+
+    printf("%s",state.db->getMessages(UserHash((char*)"hello"))->getUser(UserHash((char*)"goodb"))->at(0).data);
+
     while(running) {
         acceptConnection();
     }
 
-    delete connectionPool;
+    delete state.connPool;
+    delete state.db;
 
     close(sock);
 
