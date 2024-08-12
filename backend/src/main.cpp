@@ -12,8 +12,8 @@
 
 #include "global_state.hpp"
 
-const int port = 9852;
-const char* portStr = "9852";
+const int port = 9853;
+const char* portStr = "9853";
 int sock = 0;
 
 State state{};
@@ -106,23 +106,33 @@ int main() {
     char* pk1 = (char*)"123";
     char* pk2 = (char*)"456";
 
-    state.db->send_message(UserHash(a),UserHash(b), 6, h1);
-    state.db->send_message(UserHash(b),UserHash(a), 6, h2);
+    state.db->send_message(new UserHash(a), new UserHash(b), 6, h1);
+    state.db->send_message(new UserHash(b), new UserHash(a), 6, h2);
 
-    state.db->setRootPubKey(UserHash(a),RootPubKey{3, pk1});
-    state.db->setRootPubKey(UserHash(b),RootPubKey{3, pk2});
+    printf("here\n");
 
-    char* t = (char*)"testdb";
+    state.db->setRootPubKey(new UserHash(a), new RootPubKey{3, pk1});
+    state.db->setRootPubKey(new UserHash(b), new RootPubKey{3, pk2});
+
+    char* t = (char*)"test.db";
+
+    printf("here\n");
 
     state.db->saveData(t);
+
+    printf("here.5\n");
 
     delete state.db;
 
     state.db = new DB();
 
+    printf("here1\n");
+
     state.db->loadData(t);
 
-    printf("%s",state.db->getMessages(UserHash((char*)"hello"))->getUser(UserHash((char*)"goodb"))->at(0).data);
+    printf("here2\n");
+
+    printf("%s",state.db->getMessages(new UserHash(a))->getUser(new UserHash(b))->at(0).data);
 
     while(running) {
         acceptConnection();

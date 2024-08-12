@@ -14,5 +14,8 @@ build: $(SRC)
 clean:
 	rm bin/server
 
+run:
+	make build
+	./bin/server
 
 

@@ -12,23 +12,25 @@ inline int64_t epoch_millis() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
-void DB::send_message(UserHash from, UserHash to, int len, char* message) {
+void DB::send_message(UserHash* from, UserHash* to, int len, char* message) {
     this->db.getUserOrCreate(from)->getUserOrCreate(to)->push_back({epoch_millis(),len,message});
 }
 
-UserMap<std::vector<Message>*>* DB::getMessages(UserHash user) {
+UserMap<std::vector<Message>>* DB::getMessages(UserHash* user) {
     return this->db.getUserOrCreate(user);
 }
 
-RootPubKey DB::getRootPubKey(UserHash user) {
-    return this->rootPubKeys.getUser(user);
+RootPubKey DB::getRootPubKey(UserHash* user) {
+    return *this->rootPubKeys.getUser(user);
 }
 
-void DB::setRootPubKey(UserHash user, RootPubKey pubKey) {
-    this->rootPubKeys.userMap.insert(std::make_pair(user.str(), pubKey));
+void DB::setRootPubKey(UserHash* user, RootPubKey* pubKey) {
+    this->rootPubKeys.userMap.insert(std::make_pair(user->str(), pubKey));
 }
 
 void DB::loadData(char* fileName) {
+
+    printf("Loading DB from %s...\n",fileName);
 
     std::ifstream file(fileName, std::ios::binary);
     if (!file.is_open()) {
@@ -45,16 +47,18 @@ void DB::loadData(char* fileName) {
 
     file.read(buf.data, 4);
 
-    if (buf.int32 != (int)*"SECU") {
+    if (buf.int32 != *(int*)"SECU") {
+        buf.data[4] = 0;
         printf("Error: Failed to load DB data: Magic bytes not detected, found '%s', expected 'SECU'\n", buf.magicBytes);
         return;
     }
 
-    file.seekg(4, std::ios::end);
+    file.seekg(-4, std::ios::end);
 
     file.read(buf.data, 4);
 
-    if (buf.int32 != (int)*"UCES") {
+    if (buf.int32 != *(int*)"UCES") {
+        buf.data[4] = 0;
         printf("Error: Failed to load DB data: File corrupted, end bytes not found, expecting 'UCES', found '%s'\n", buf.magicBytes);
         return;
     }
@@ -70,8 +74,8 @@ void DB::loadData(char* fileName) {
         file.read(hash->chars, USER_HASH_LEN);
 
         file.read(buf.data, 4);
-        RootPubKey key{buf.int32, new char[buf.int32]};
-        file.read(key.data, key.len);
+        RootPubKey* key = new RootPubKey{buf.int32, new char[buf.int32]};
+        file.read(key->data, key->len);
 
         this->rootPubKeys.userMap.insert(std::make_pair(hash->str(),key));
     }
@@ -87,7 +91,7 @@ void DB::loadData(char* fileName) {
         file.read(hash->chars, USER_HASH_LEN);
 
         file.read(buf.data, 4);
-        UserMap<std::vector<Message>*>* contacts = new UserMap<std::vector<Message>*>();
+        UserMap<std::vector<Message>>* contacts = new UserMap<std::vector<Message>>();
         contacts->userMap.reserve(buf.int32);
 
         this->db.userMap.insert(std::make_pair(hash->str(),contacts));
@@ -99,6 +103,7 @@ void DB::loadData(char* fileName) {
 
             file.read(buf.data, 8);
             std::vector<Message>* messages = new std::vector<Message>();
+            printf("gdjf: %lu %d\n",buf.int64,(int)file.tellg());
             messages->reserve(buf.int64);
 
             for (int m = buf.int64; m--; ) {
@@ -117,11 +122,14 @@ void DB::loadData(char* fileName) {
 
     }
 
+    printf("Loaded DB!\n");
 }
 
 #define writeSize(x) size = (uint64_t)x; file.write((char*)&size, 8)
 
 void DB::saveData(char* fileName) {
+
+    printf("Saving DB to %s...\n",fileName);
 
     std::ofstream file(fileName, std::ios::binary | std::ios::trunc);
     if (!file.is_open()) {
@@ -133,14 +141,17 @@ void DB::saveData(char* fileName) {
 
     file.write("SECU",4);
     writeSize(this->rootPubKeys.userMap.size());
+    printf("Root pub keys size: %d\n", (int)this->rootPubKeys.userMap.size());
     for (auto& [user, rootPubKey] : this->rootPubKeys.userMap) {
         file.write(user.c_str(), USER_HASH_LEN);
+        printf("user: %s\n",user.c_str());
 
-        file.write(((char*)&rootPubKey.len), sizeof(rootPubKey.len));
-        file.write(rootPubKey.data, rootPubKey.len);
+        file.write(((char*)&rootPubKey->len), sizeof(rootPubKey->len));
+        file.write(rootPubKey->data, rootPubKey->len);
     }
     
     writeSize(this->db.userMap.size());
+    printf("User db size: %d\n", (int)this->db.userMap.size());
     for (auto& [user, child] : this->db.userMap) {
         file.write(user.c_str(), USER_HASH_LEN);
 
@@ -158,6 +169,8 @@ void DB::saveData(char* fileName) {
         }
     }
     file.write("UCES",4);
+
+    printf("Saved DB!\n");
 }
 
 DB::DB() {
