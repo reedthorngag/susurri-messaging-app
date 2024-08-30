@@ -43,6 +43,13 @@ export default StyleSheet.create({
         borderRadius: 6,
         backgroundColor: primaryAccent
     },
+    container: {
+        backgroundColor: secondary,
+        borderColor: secondaryAccent,
+        borderWidth: 1,
+        borderRadius: 4,
+        padding: 10
+    },
     text: {
         fontFamily: 'NotoSans',
         color: textColor,
@@ -63,10 +70,21 @@ export default StyleSheet.create({
         paddingLeft: 15,
         paddingRight: 15,
         borderRadius: 4,
+        borderWidth: 1,
         marginTop: 15,
         alignItems: 'center',
-        borderColor: 'black',
+        borderColor: primaryAccent,
         backgroundColor: secondaryAccent
+    },
+    subtleButton: {
+        padding: 10,
+        paddingLeft: 15,
+        paddingRight: 15,
+        borderRadius: 4,
+        marginTop: 15,
+        alignItems: 'center',
+        borderColor: primary,
+        backgroundColor: secondary
     }
 });
 
