@@ -45,7 +45,7 @@ export default function Menu(props: any) {
 const pageStyles = StyleSheet.create({
     container: {
         position: 'absolute',
-        zIndex: 2,
+        zIndex: 200,
         top: '100%',
         left: '2%',
         width: '45%',
@@ -61,7 +61,7 @@ const pageStyles = StyleSheet.create({
         top: '-10%',
         left: 0,
         width: '100%',
-        height: '1010%',
+        height: '1260%',
         backgroundColor: '#00000060'
     },
     menuItem: {

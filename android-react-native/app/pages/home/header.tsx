@@ -12,8 +12,8 @@ export default function Header() {
 
     return (
         <View style={[styles.foreground, pageStyles.header]}>
-            <TouchableOpacity style={styles.button} onPress={() => setMenu(!menu)}>
-                <Text style={styles.text}>Menu</Text>
+            <TouchableOpacity style={{height: '100%', width: '25%', left: '-2%'}} onPress={() => setMenu(!menu)}>
+                <Image style={{height: '60%', width: '100%', top: '20%', resizeMode: 'contain'}} source={require('@/assets/images/menu-icon.png')}></Image>
             </TouchableOpacity>
             {menu ? <Menu closer={setMenu} a={menu} /> : <></>}
         </View>
@@ -22,7 +22,7 @@ export default function Header() {
 
 const pageStyles = StyleSheet.create({
     header: {
-        height: '10%',
+        height: '8%',
         width: '100%'
     }
 });

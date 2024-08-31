@@ -1,12 +1,12 @@
 import { StyleSheet } from 'react-native';
 
-const textColor = '#bfbfbf';
+export const textColor = '#bfbfbf';
 
-const primary = '#001F3F';
-const primaryAccent = '#3A0A45';
+export const primaryColor = '#000f2F';
+export const primaryAccent = '#3A0A45';
 
-const secondary = '#003366';
-const secondaryAccent = '#5A2D81';
+export const secondaryColor = '#001F3F';
+export const secondaryAccent = '#5A2D81';
 
 export default StyleSheet.create({
     flex: {
@@ -28,10 +28,10 @@ export default StyleSheet.create({
         flexDirection: 'column',
     },
     background: {
-        backgroundColor: primary
+        backgroundColor: primaryColor
     },
     foreground: {
-        backgroundColor: secondary,
+        backgroundColor: secondaryColor,
         fontFamily: 'NotoSans'
     },
     input: {
@@ -44,7 +44,7 @@ export default StyleSheet.create({
         backgroundColor: primaryAccent
     },
     container: {
-        backgroundColor: secondary,
+        backgroundColor: secondaryColor,
         borderColor: secondaryAccent,
         borderWidth: 1,
         borderRadius: 4,
@@ -65,6 +65,9 @@ export default StyleSheet.create({
         color: textColor,
         fontSize: 40
     },
+    bold: {
+        fontWeight: 700
+    },
     button: {
         padding: 10,
         paddingLeft: 15,
@@ -83,8 +86,8 @@ export default StyleSheet.create({
         borderRadius: 4,
         marginTop: 15,
         alignItems: 'center',
-        borderColor: primary,
-        backgroundColor: secondary
+        borderColor: primaryColor,
+        backgroundColor: secondaryColor
     }
 });
 

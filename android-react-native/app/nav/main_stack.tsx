@@ -6,6 +6,7 @@ import Settings from '../pages/settings';
 import Login from '../pages/login';
 import TOS from '../pages/tos';
 import Privacy from '../pages/privacy';
+import DM from '../pages/dm/dm';
 
 const Theme = {
 	...DefaultTheme,
@@ -24,6 +25,7 @@ export default function MainStack() {
 			<Stack.Navigator initialRouteName="Login">
 				<Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
 				<Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+				<Stack.Screen name="DM" component={DM} options={{ headerShown: false }} />
 				<Stack.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
 				<Stack.Screen name="TOS" component={TOS} options={{ headerShown: false }} />
 				<Stack.Screen name="Privacy" component={Privacy} options={{ headerShown: false }} />
