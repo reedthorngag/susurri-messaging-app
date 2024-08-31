@@ -16,7 +16,12 @@ export default function Home() {
 		<View style={[styles.flexTop, styles.background]}>
 			<Header />
 			<View style={{width: '100%', left: '5%', marginTop: '5%', zIndex: -1}}>
-				<Text style={[styles.largeText, pageStyles.dmHeader]}>DMs</Text>
+				<View style={{flexDirection: 'row', marginBottom: '5%', height: '13%'}}>
+					<Text style={[styles.largeText, pageStyles.dmHeader]}>DMs</Text>
+					<TouchableOpacity style={{position: 'absolute', right: '12%', top: 0, height: '100%', width: '14%'}} onPress={() => navigator.navigate(props.to as never)}>
+						<Image style={{height: '120%', width: '100%', resizeMode: 'contain'}} source={require('@/assets/images/new-message-icon.png')}></Image>
+					</TouchableOpacity>
+				</View>
 				<ScrollView style={{maxHeight: '80%', overflow: 'scroll', width: '90%'}}>
 					{dms.map(dm => <DM name={dm} key={dm} />)}
 				</ScrollView>
@@ -29,7 +34,6 @@ const pageStyles = StyleSheet.create({
 	dmHeader: {
 		fontSize: 24,
 		fontFamily: 'NotoSansBold',
-		marginLeft: '2%',
-		marginBottom: '2%'
+		marginLeft: '2%'
 	}
 });

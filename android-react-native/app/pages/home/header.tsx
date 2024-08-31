@@ -11,11 +11,12 @@ export default function Header() {
     const [menu, setMenu] = useState(false);
 
     return (
-        <View style={[styles.foreground, pageStyles.header]}>
+        <View style={[styles.foreground, pageStyles.header, {flexDirection: 'row'}]}>
             <TouchableOpacity style={{height: '100%', width: '25%', left: '-2%'}} onPress={() => setMenu(!menu)}>
                 <Image style={{height: '60%', width: '100%', top: '20%', resizeMode: 'contain'}} source={require('@/assets/images/menu-icon.png')}></Image>
             </TouchableOpacity>
             {menu ? <Menu closer={setMenu} a={menu} /> : <></>}
+            <Text style={[styles.largeText, styles.bold, {marginTop: '3.5%', marginLeft: '-1%', fontSize: 24, fontWeight: 600}]}>Home</Text>
         </View>
     );
 }

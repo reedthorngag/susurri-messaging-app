@@ -32,7 +32,7 @@ export default function Menu(props: any) {
                 <Text style={styles.largeText}>TOS</Text>
             </TouchableOpacity>
             <TouchableOpacity style={pageStyles.menuItem} onPress={() => {close(); navigator.navigate('Privacy' as never)}}>
-                <Text style={styles.largeText}>Privacy policy</Text>
+                <Text style={styles.largeText}>Privacy Policy</Text>
             </TouchableOpacity>
             <TouchableOpacity style={pageStyles.menuItem} onPress={() => {close(); navigator.navigate('Login' as never)}}>
                 <Text style={styles.largeText}>Logout</Text>

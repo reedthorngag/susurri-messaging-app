@@ -10,7 +10,7 @@ export default function BackHeader(props: any) {
 
     return (
         <View style={[styles.foreground, pageStyles.header]}>
-            <TouchableOpacity style={{ height: '100%', width: '20%', left: '-2%' }} onPress={() => navigator.navigate(props.to as never)}>
+            <TouchableOpacity style={{ height: '100%', width: '20%', left: '-2%' }} onPress={() => navigator.navigate((props.to || 'Home') as never)}>
                 <Image style={{ height: '40%', width: '100%', top: '30%', marginLeft: '-5%', resizeMode: 'contain', transform: [{ rotate: '180deg' }] }} source={require('@/assets/images/arrow.png')}></Image>
             </TouchableOpacity>
             {props.children}

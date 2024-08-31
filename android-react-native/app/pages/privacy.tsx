@@ -3,21 +3,16 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import styles from '../styles/styles';
+import BackHeader from '../components/back_header';
 
 export default function Privacy() {
     const navigator = useNavigation();
 
     return (
         <View style={[styles.flexTop, styles.background]}>
-            <View>
-                <TouchableOpacity style={styles.button} onPress={() => {
-                    navigator.navigate('Settings' as never);
-                }}>
-                    <Text style={styles.headerText}>&lt;-</Text>
-                </TouchableOpacity>
-            </View>
-
-            <Text style={styles.text}>Settings</Text>
+            <BackHeader>
+                <Text style={[styles.largeText, styles.bold, {fontSize: 24, fontWeight: 600}]}>Privacy Policy</Text>
+            </BackHeader>
         </View>
     );
 }
