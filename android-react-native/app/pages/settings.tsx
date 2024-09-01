@@ -9,10 +9,11 @@ export default function Settings() {
 	const navigator = useNavigation();
 
 	return (
-		<View style={[styles.flex, styles.background]}>
+		<View style={[styles.flexTop, styles.background]}>
 			<BackHeader>
 				<Text style={[styles.largeText, styles.bold, { fontSize: 24, fontWeight: 600 }]}>Settings</Text>
 			</BackHeader>
+			<Text style={[styles.largeText, {margin: '5%'}]}>There aren't any settings yet! Sorry</Text>
 		</View>
 	);
 }

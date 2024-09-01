@@ -20,7 +20,9 @@ export default function DM(props: any) {
 				</View>
 			</BackHeader>
 			<View style={{width: '100%', left: '5%', marginTop: '5%', zIndex: -1}}>
-				<ScrollView style={{height: '80%', overflow: 'scroll', width: '90%'}}>
+				<ScrollView style={{height: '80%', overflow: 'scroll', width: '90%', paddingTop: '120%'}}>
+					<View style={[styles.flexRow]}><Text style={[styles.text, {position: 'absolute', left: '4%', top:'40%'}]}>{props.route.params.user}</Text><Text style={[styles.largeText,styles.container, {marginLeft: '83%', paddingLeft: '4%', paddingRight: '4%'}]}>Hi!</Text></View>
+					<View style={[styles.flexRow]}><Text style={[styles.largeText, styles.container, {paddingLeft: '4%', paddingRight: '4%'}]}>Hello</Text></View>
 				</ScrollView>
 			</View>
 			<View style={[styles.foreground, pageStyles.inputContainer]}>

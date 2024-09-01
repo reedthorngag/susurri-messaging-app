@@ -10,7 +10,7 @@ import DM from './dm';
 export default function Home() {
 	const navigator = useNavigation();
 
-	const dms: string[] = ['hello', 'long test name'];
+	const dms: string[] = ['A User', 'long test name'];
 
 	return (
 		<View style={[styles.flexTop, styles.background]}>
