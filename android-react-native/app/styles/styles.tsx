@@ -45,10 +45,12 @@ export default StyleSheet.create({
     },
     container: {
         backgroundColor: secondaryColor,
-        borderColor: secondaryAccent,
+        borderColor: primaryColor,
         borderWidth: 1,
-        borderRadius: 4,
-        padding: 10
+        borderRadius: 5,
+        padding: 10,
+        shadowColor: 'black',
+        elevation: 5
     },
     text: {
         fontFamily: 'NotoSans',
@@ -64,6 +66,10 @@ export default StyleSheet.create({
         fontFamily: "NotoSansBold",
         color: textColor,
         fontSize: 40
+    },
+    paragraph: {
+        marginBottom: 20,
+        marginTop: 5
     },
     bold: {
         fontWeight: 700

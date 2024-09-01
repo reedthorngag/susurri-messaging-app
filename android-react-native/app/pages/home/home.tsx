@@ -18,7 +18,7 @@ export default function Home() {
 			<View style={{width: '100%', left: '5%', marginTop: '5%', zIndex: -1}}>
 				<View style={{flexDirection: 'row', marginBottom: '5%', height: '13%'}}>
 					<Text style={[styles.largeText, pageStyles.dmHeader]}>DMs</Text>
-					<TouchableOpacity style={{position: 'absolute', right: '12%', top: 0, height: '100%', width: '14%'}} onPress={() => navigator.navigate(props.to as never)}>
+					<TouchableOpacity style={{position: 'absolute', right: '12%', top: 0, height: '100%', width: '14%'}} onPress={() => navigator.navigate("DM", {user: 'New user'})}>
 						<Image style={{height: '120%', width: '100%', resizeMode: 'contain'}} source={require('@/assets/images/new-message-icon.png')}></Image>
 					</TouchableOpacity>
 				</View>

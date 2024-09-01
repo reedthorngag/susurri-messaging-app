@@ -20,7 +20,7 @@ export default function BackHeader(props: any) {
 
 const pageStyles = StyleSheet.create({
     header: {
-        height: '8%',
+        height: 65,
         width: '100%',
         display: 'flex',
         flexDirection: 'row',

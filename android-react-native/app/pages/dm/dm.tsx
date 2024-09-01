@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, TextInput } from 'react-native-gesture-handler';
 
-import styles from '../../styles/styles';
+import styles, { textColor } from '../../styles/styles';
 import BackHeader from '../../components/back_header';
 
 export default function DM(props: any) {
@@ -20,8 +20,17 @@ export default function DM(props: any) {
 				</View>
 			</BackHeader>
 			<View style={{width: '100%', left: '5%', marginTop: '5%', zIndex: -1}}>
-				<ScrollView style={{maxHeight: '80%', overflow: 'scroll', width: '90%'}}>
+				<ScrollView style={{height: '80%', overflow: 'scroll', width: '90%'}}>
 				</ScrollView>
+			</View>
+			<View style={[styles.foreground, pageStyles.inputContainer]}>
+				<View style={pageStyles.attachment}>
+					<Text style={pageStyles.attachmentText}>+</Text>
+				</View>
+				<TextInput style={[styles.input, styles.text, pageStyles.input]} placeholder='Username' placeholderTextColor={'grey'}></TextInput>
+				<TouchableOpacity style={{ height: '100%', width: '20%', left: '-2%' }} onPress={() => navigator.navigate((props.to || 'Home') as never)}>
+					<Image style={{ height: '40%', width: '100%', top: '30%', marginLeft: '-5%', resizeMode: 'contain'}} source={require('@/assets/images/arrow.png')}></Image>
+				</TouchableOpacity>
 			</View>
 		</View>
 	);
@@ -30,5 +39,33 @@ export default function DM(props: any) {
 const pageStyles = StyleSheet.create({
 	dmHeader: {
 
+	},
+	inputContainer: {
+		height: 100,
+		paddingBottom: '3%',
+		paddingTop: '2%',
+		paddingLeft: '5%',
+		flexDirection: 'row',
+		width: '100%'
+	},
+	input: {
+		height: '60%',
+		borderRadius: 30
+	},
+	attachment: {
+		height: 34,
+		width: 36,
+		margin: 'auto',
+		borderWidth: 3,
+		borderColor: textColor,
+		borderRadius: 30,
+		padding: 4,
+		marginRight: '2%'
+	},
+	attachmentText: {
+		fontFamily: 'NotoSansBold',
+		fontSize: 40,
+		color: textColor,
+		marginTop: '-90%'
 	}
 });

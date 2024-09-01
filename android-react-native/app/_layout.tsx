@@ -37,7 +37,7 @@ export default function RootLayout() {
 
   return (
       <>
-      <View style={[{height: '3.5%'}, styles.background]}></View>
+      <View style={[{height: 30}, styles.background]}></View>
       <Stack>
         <Stack.Screen name="index" options={{headerShown: false}} />
       </Stack>

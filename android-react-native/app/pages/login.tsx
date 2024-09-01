@@ -14,7 +14,7 @@ export default function Login() {
 
             <View style={{height: '2%'}}></View>
 
-            <TextInput style={[styles.input, styles.text]} placeholder='Username' placeholderTextColor={'grey'}></TextInput>
+            <TextInput style={[styles.input, styles.text,]} placeholder='Username' placeholderTextColor={'grey'}></TextInput>
             <TextInput style={[styles.input, styles.text]} placeholder='Password' placeholderTextColor={'grey'} secureTextEntry></TextInput>
 
             <View style={{height: '3%'}}></View>
