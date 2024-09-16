@@ -8,6 +8,8 @@ export const primaryAccent = '#3A0A45';
 export const secondaryColor = '#001F3F';
 export const secondaryAccent = '#5A2D81';
 
+export const errorColor = '#990606';
+
 export default StyleSheet.create({
     flex: {
         flex: 1,
@@ -52,6 +54,16 @@ export default StyleSheet.create({
         shadowColor: 'black',
         elevation: 5
     },
+    errorBox: {
+        backgroundColor: errorColor,
+        borderColor: textColor,
+        color: textColor,
+        borderWidth: 1,
+        borderRadius: 5,
+        padding: 10,
+        width: '70%',
+        elevation: 3
+    },
     text: {
         fontFamily: 'NotoSans',
         color: textColor,
@@ -61,6 +73,11 @@ export default StyleSheet.create({
         fontFamily: 'NotoSans',
         color: textColor,
         fontSize: 20
+    },
+    largerText: {
+        fontFamily: 'NotoSans',
+        color: textColor,
+        fontSize: 22
     },
     headerText: {
         fontFamily: "NotoSansBold",
@@ -78,9 +95,12 @@ export default StyleSheet.create({
         padding: 10,
         paddingLeft: 15,
         paddingRight: 15,
+        marginLeft: 5,
+        marginRight: 5,
+        marginTop: 3,
+        marginBottom: 3,
         borderRadius: 4,
         borderWidth: 1,
-        marginTop: 15,
         alignItems: 'center',
         borderColor: primaryAccent,
         backgroundColor: secondaryAccent

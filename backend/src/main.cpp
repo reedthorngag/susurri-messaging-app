@@ -57,6 +57,8 @@ void handle_sigint([[maybe_unused]] int s) {
 
 void acceptConnection() {
 
+    sockaddr_in addr{};
+    socklen_t len = sizeof(addr);
 }
 
 int main() {

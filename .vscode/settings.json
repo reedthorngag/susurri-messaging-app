@@ -49,5 +49,6 @@
         "ratio": "cpp",
         "fstream": "cpp",
         "istream": "cpp"
-    }
+    },
+    "makefile.configureOnOpen": false
 }
