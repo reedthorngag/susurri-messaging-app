@@ -3,9 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, ActivityInd
 import { useNavigation } from '@react-navigation/native';
 import * as FS from 'expo-file-system';
 
-
 import styles from '../styles/styles';
-import { sha512_256 } from 'js-sha512';
+import { hashUser } from '../util/encryption';
 
 function usernameInvalid(username: string) {
     const regex = /.{1,128}/;
@@ -16,6 +15,7 @@ function passwordInvalid(password: string) {
     const regex = /.{1,128}/;
     return !regex.test(password);
 }
+
 
 export default function Login() {
     const navigator = useNavigation();
@@ -29,12 +29,29 @@ export default function Login() {
 
     const [newUserPrompt, setNewUserPrompt] = useState(false);
     const [newUser, setNewUser] = useState(false);
+    const [confirmNewUser, setConfirmNewUser] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
     useEffect(() => {
-        if (!newUser) return;
-        
+        if (!confirmNewUser) return;
 
-    }, [newUser]);
+        if (passwordInvalid(newPassword)) {
+            setLoginError('Password is empty!');
+            setConfirmNewUser(false);
+            return;
+        }
+
+        if (newPassword != password) {
+            setLoginError('Passwords don\'t match!');
+            setConfirmNewUser(false);
+            return;
+        }
+        
+        const hash = hashUser(username+password);
+        FS.writeAsStringAsync(FS.cacheDirectory! + hash+'.user','hello world');
+
+    }, [confirmNewUser]);
 
     useEffect(() => {
         if (!login) return;
@@ -51,16 +68,16 @@ export default function Login() {
             return;
         }
 
-        const hash = sha512_256(username+password);
-        FS.getInfoAsync(FS.cacheDirectory + hash+'.user').then((fileInfo) => {
+        const hash = hashUser(username+password);
+        FS.getInfoAsync(FS.cacheDirectory! + hash+'.user').then((fileInfo) => {
             if (fileInfo.exists && !fileInfo.isDirectory) {
-                console.log(FS.cacheDirectory + hash+'.user');
-                FS.readAsStringAsync(FS.cacheDirectory + hash+'.user').then((data: string) => {console.log(data)});
+                console.log(FS.cacheDirectory! + hash+'.user');
+                FS.readAsStringAsync(FS.cacheDirectory! + hash+'.user').then((data: string) => {console.log(data)});
             }
             else {
                 setNewUserPrompt(true);
-                console.log(FS.cacheDirectory + hash+'.user');
-                FS.writeAsStringAsync(FS.cacheDirectory + hash+'.user','hello world');
+                console.log(FS.cacheDirectory! + hash+'.user');
+                FS.writeAsStringAsync(FS.cacheDirectory! + hash+'.user','hello world');
                 setLoginError('User not found!');
                 setLogin(false);
             }
@@ -69,18 +86,25 @@ export default function Login() {
         setLoginError('');
     }, [login]);
 
-    console.log(newUserPrompt)
     return (
         <View style={[styles.flex, styles.background]}>
 
             {newUserPrompt && (()=>{Keyboard.dismiss(); return true;})() && <>
-                <TouchableOpacity style={pageStyles.overlay} onPress={() => {console.log('fml I wanna die'); setNewUserPrompt(false)}} />
+                <TouchableOpacity style={pageStyles.overlay} onPress={() => setNewUserPrompt(false)} />
                 <View style={[styles.flex, styles.container, {top: '16%', minHeight: 100, maxHeight: 160, width: '60%', zIndex: 11, borderRadius: 10}]}>
                     <Text style={[styles.largerText, {height: 'auto', marginTop: 6}]}>User not found!</Text>
                     <Text style={[styles.largeText, {height: 'auto', fontSize: 17, marginTop: 4}]}>Create new user?</Text>
+
+                    {newUser && <>
+                        {confirmPasswordError && <Text style={[styles.text, styles.errorBox]}>{confirmPasswordError}</Text>}
+                        {newUser && <TextInput style={[styles.input, styles.text,]} placeholder='Confirm password' placeholderTextColor={'grey'} value={newPassword} onChangeText={(e) => {setConfirmPasswordError(''); setNewPassword(e)}} />}
+                    </>}
+
                     <View style={[styles.flexRow, {maxHeight: '40%', marginBottom: 0, marginTop: 10}]}>
-                        <TouchableOpacity style={[styles.button, {marginRight: 10}]} onPress={() => setNewUserPrompt(false)}><Text style={styles.text}>Cancel</Text></TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={() => setNewUser(true)}><Text style={styles.text}>Create</Text></TouchableOpacity>
+                        <TouchableOpacity style={[styles.button, {marginRight: 10}]} onPress={() => {setNewUser(true); setNewUserPrompt(false); setConfirmNewUser(false); setNewPassword(''); setConfirmPasswordError('');}}><Text style={styles.text}>Cancel</Text></TouchableOpacity>
+                        {newUser ? <TouchableOpacity style={styles.button} onPress={() => setNewUser(true)}><Text style={styles.text}>Create</Text></TouchableOpacity> :
+                                    <TouchableOpacity style={styles.button} onPress={() => setConfirmNewUser(true)}><Text style={styles.text}>Confirm</Text></TouchableOpacity>
+                        }
                     </View>
                 </View>
                 </>
@@ -94,8 +118,8 @@ export default function Login() {
 
             <View style={{height: '1%'}}></View>
 
-            <TextInput style={[styles.input, styles.text,]} ref={usernameElemRef} placeholder='Username' placeholderTextColor={'grey'} value={username} onChangeText={(e) => {setLoginError(''); setUsername(e)}}></TextInput>
-            <TextInput style={[styles.input, styles.text]} placeholder='Password' placeholderTextColor={'grey'} value={password} onChangeText={(e) => {setLoginError(''); setPassword(e)}} secureTextEntry></TextInput>
+            <TextInput style={[styles.input, styles.text,]} placeholder='Username' placeholderTextColor={'grey'} value={username} onChangeText={(e) => {setLoginError(''); setUsername(e)}} />
+            <TextInput style={[styles.input, styles.text]} placeholder='Password' placeholderTextColor={'grey'} value={password} onChangeText={(e) => {setLoginError(''); setPassword(e)}} secureTextEntry />
 
             <View style={{height: '3%'}}></View>
 
