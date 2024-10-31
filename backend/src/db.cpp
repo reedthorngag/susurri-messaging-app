@@ -12,11 +12,11 @@ inline int64_t epoch_millis() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
-void DB::send_message(UserHash* from, UserHash* to, int len, char* message) {
-    this->db.getUserOrCreate(from)->getUserOrCreate(to)->push_back({epoch_millis(),len,message});
+void DB::send_message(UserHash* userHash, char* user, int len, char* message) {
+    this->db.getUserOrCreate(userHash)->push_back({user,epoch_millis(),len,message});
 }
 
-UserMap<std::vector<Message>>* DB::getMessages(UserHash* user) {
+std::vector<Message>* DB::getMessages(UserHash* user) {
     return this->db.getUserOrCreate(user);
 }
 
@@ -90,36 +90,32 @@ void DB::loadData(char* fileName) {
         hash = new UserHash{};
         file.read(hash->chars, USER_HASH_LEN);
 
-        file.read(buf.data, 4);
-        UserMap<std::vector<Message>>* contacts = new UserMap<std::vector<Message>>();
-        contacts->userMap.reserve(buf.int32);
+        file.read(buf.data, 8);
+        std::vector<Message>* messages = new std::vector<Message>();
+        messages->reserve(buf.int64);
 
-        this->db.userMap.insert(std::make_pair(hash->str(),contacts));
+        for (int m = buf.int64; m--; ) {
 
-        for (int n = buf.int32; n--; ) {
+            Message message{};
 
-            hash = new UserHash{};
-            file.read(hash->chars, USER_HASH_LEN);
+            int message_usr_len;
+            file.read((char*)&message_usr_len, sizeof(message_usr_len));
+            message.user = new char[message_usr_len+1];
+            message.user[message_usr_len] = 0;
+            file.read(message.user, message_usr_len);
 
-            file.read(buf.data, 8);
-            std::vector<Message>* messages = new std::vector<Message>();
-            printf("gdjf: %lu %d\n",buf.int64,(int)file.tellg());
-            messages->reserve(buf.int64);
+            file.read((char*)&message.time, sizeof(message.time));
+            file.read((char*)&message.id, sizeof(message.id));
+            file.read((char*)&message.len, sizeof(message.len));
 
-            for (int m = buf.int64; m--; ) {
+            message.data = new char[message.len+1];
+            message.data[message.len] = 0;
+            file.read(message.data, message.len);
 
-                Message message{};
-                file.read((char*)&message.time, sizeof(message.time));
-                file.read((char*)&message.len, sizeof(message.len));
-
-                message.data = new char[message.len+1];
-                message.data[message.len] = 0;
-                file.read(message.data, message.len);
-
-                messages->push_back(message);
-            }
+            messages->push_back(message);
         }
 
+        this->db.userMap.insert(std::make_pair(hash->str(), messages));
     }
 
     printf("Loaded DB!\n");
@@ -152,20 +148,18 @@ void DB::saveData(char* fileName) {
     
     writeSize(this->db.userMap.size());
     printf("User db size: %d\n", (int)this->db.userMap.size());
-    for (auto& [user, child] : this->db.userMap) {
-        file.write(user.c_str(), USER_HASH_LEN);
+    for (auto& pair : this->db.userMap) {
+        file.write(pair.first.c_str(), USER_HASH_LEN);
 
-        size = (uint64_t)child->userMap.size();
-        file.write(((char*)&size)+4, 4);
-        for (auto& [user, messages] : child->userMap) {
-            file.write(user.c_str(), USER_HASH_LEN);
-
-            writeSize(messages->size());
-            for (Message message : *messages) {
-                file.write((char*)&message.time, sizeof(message.time));
-                file.write((char*)&message.len, sizeof(message.len));
-                file.write(message.data, message.len);
-            }
+        writeSize(pair.second->size());
+        for (Message message : *pair.second) {
+            int message_usr_len = strlen(message.user);
+            file.write((char*)&message_usr_len, sizeof(message_usr_len));
+            file.write(message.user, strlen(message.user));
+            file.write((char*)&message.time, sizeof(message.time));
+            file.write((char*)&message.id, sizeof(message.id));
+            file.write((char*)&message.len, sizeof(message.len));
+            file.write(message.data, message.len);
         }
     }
     file.write("UCES",4);
@@ -178,11 +172,8 @@ DB::DB() {
 }
 
 DB::~DB() {
-    for (auto& [user, child] : this->db.userMap) {
-        for (auto& [user, messages] : child->userMap) {
-            delete messages;
-        }
-        delete child;
+    for (auto& [user, messages] : this->db.userMap) {
+        delete messages;
     }
 }
 

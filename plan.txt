@@ -1,6 +1,23 @@
 
 Server is to be considered compromised at all times
 
+encrypt user's public key with their username so the server can't (easily) replace a users public key when
+another user requests it
+Problems with this:
+    may be relatively trivial to brute force for more simple/common usernames
+    adds even more reliance on the users username staying secret
+
+
+NEW IDEA:
+the server doesnt even know the user hash of a single user
+hashes of the two user's hashes combined is used
+
+Problems:
+    the server can look at which connections are making requests asking about
+    the same combined hash to see which connection is talking to which, which would
+    link multiple IP's to each other, when they request the same combined hash, but this could
+    be done before anyway (if I solve the problem with rotating hashes that would fix this)
+
 
 all messages are encrypted at all times
 
@@ -17,6 +34,7 @@ Problems:
 Solutions/ideas:
 
     Offer the potential to proxy through tor
+    Default to proxying through tor
 
 
 Client side data:

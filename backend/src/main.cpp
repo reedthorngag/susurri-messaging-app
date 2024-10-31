@@ -50,16 +50,28 @@ void handle_sigint([[maybe_unused]] int s) {
     printf("\nKilling server...\n");
     running = false;
     for (int i = 5; i--;) {
-        usleep(100000);
+        usleep(100_000);
         selfConnect();
     }
 }
 
-void acceptConnection() {
+inline void acceptConnection() {
 
-    sockaddr_in addr{};
-    socklen_t len = sizeof(addr);
+    Connection* data = new Connection();
+
+    int conn = accept(sock,(struct sockaddr*)&data->addr,&data->addr_len);
+    if (conn < 0) {
+        printf("accept call failed!\n");
+        return;
+    }
+
+    data->conn = conn;
+    pthread_t thread;
+
+    pthread_create(&thread,NULL,&data->init,data);
+    pthread_detach(thread);
 }
+
 
 int main() {
 
@@ -134,16 +146,15 @@ int main() {
 
     printf("here2\n");
 
-    printf("%s",state.db->getMessages(new UserHash(a))->getUser(new UserHash(b))->at(0).data);
+    printf("%s",state.db->getMessages(new UserHash(a))->at(0).data);
 
     while(running) {
         acceptConnection();
     }
 
-    delete state.connPool;
-    delete state.db;
-
     close(sock);
+
+    delete state.db;
 
     return 0;
 }

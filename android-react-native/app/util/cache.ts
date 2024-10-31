@@ -1,6 +1,7 @@
 
 
 export type Message = {
+    user: string;
     data: string;
     time: number;
     id: number

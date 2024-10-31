@@ -31,7 +31,9 @@ class UserHash {
 };
 
 struct Message {
+    char* user;
     int64_t time;
+    unsigned int id;
     int len;
     char* data;
 };
@@ -68,13 +70,13 @@ class UserMap {
 class DB {
 
     private:
-        UserMap<UserMap<std::vector<Message>>> db;
+        UserMap<std::vector<Message>> db;
         UserMap<RootPubKey> rootPubKeys;
 
     public:
 
-        void send_message(UserHash* from, UserHash* to, int len, char* message);
-        UserMap<std::vector<Message>>* getMessages(UserHash* user);
+        void send_message(UserHash* userHash, char* user, int len, char* message);
+        std::vector<Message>* getMessages(UserHash* user);
 
         RootPubKey getRootPubKey(UserHash* user);
         void setRootPubKey(UserHash* user, RootPubKey* pubKey);

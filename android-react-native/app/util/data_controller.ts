@@ -10,16 +10,38 @@ let currentDmUpdateHandler: DmUpdateHandler;
 
 type DataRequestResponse = {
     type: string;
-    data: Array<Message> | Buffer;
+    data: Buffer;
 };
+
+const requestTypeMap: {[type: string]: Buffer} = {
+    "ping": Buffer.from([0]),
+    "messages": Buffer.from([1]),
+    "message": Buffer.from([2]),
+};
+
+const requestTypeStringMap: Array<string> = [
+    "pong",
+    "messages",
+    "message"
+];
+
+const paramIds: {[param: string]: Buffer} = {
+    "id": Buffer.from([0]),
+    "offset": Buffer.from([1]),
+    "count": Buffer.from([2]),
+    "message": Buffer.from([3]),
+};
+
 
 let currentDataRequestId = 0;
 
 const pendingDataRequests: {[requestId: number]: (response: DataRequestResponse) => void} = {};
 
 function dataHandler(data: Buffer) {
-    let type: string = "";
-    pendingDataRequests[data.readInt32BE(0)]({})
+
+    const type: string = requestTypeStringMap[data.readUint8(4)];
+
+    pendingDataRequests[data.readUint32LE(0)]({type: type, data: data.subarray(5,data.length)});
 }
 
 addDataControllerCallback(dataHandler);
@@ -51,33 +73,61 @@ async function loadUser(id: string): Promise<User | undefined> {
     return user;
 }
 
+function parseMessages(data: Buffer): Array<Message> {
+
+    let num = data.readInt32LE(0);
+
+    const messages: Array<Message> = [];
+
+    let n = 4;
+    while (num--) {
+        let len: number = data.readInt8(n++);
+
+        const user: string = data.subarray(n, n += len).toString();
+
+        const time: number = Number(data.readBigUint64LE(n));
+        n += 8;
+
+        const messageId: number = data.readInt32LE(n);
+        n += 4;
+
+        len = data.readInt32LE(n);
+        n += 4;
+
+        const message: string = data.subarray(n, n += len).toString();
+
+        messages.push({user: user, data: message, time: time, id: messageId});
+    }
+
+    return messages;
+}
+
 function parseDataResponse(response: DataRequestResponse): Array<Message> | undefined {
-    return undefined;
+
+    switch (response.type) {
+        case 'pong':
+            break;
+        case 'messages':
+            return parseMessages(response.data);
+    }
 }
 
-export async function requestMessagesAsync(id: string, offset: number, n: number): Promise<Array<Message>> {
-    return new Promise((resolve) => requestMessages(id, offset, n, (messages: Array<Message>) => {resolve(messages)}));
+export async function requestMessagesAsync(id: string, offset: number, count: number): Promise<Array<Message>> {
+    return new Promise((resolve) => requestMessages(id, offset, count, (messages: Array<Message>) => {resolve(messages)}));
 }
 
-export async function requestMessages(id: string, offset: number, n: number, callback: (messages: Array<Message>) => void) {
+export async function requestMessages(id: string, offset: number, count: number, callback: (messages: Array<Message>) => void) {
     const requestId = ++currentDataRequestId;
     const response: Promise<DataRequestResponse> = new Promise((resolve) => pendingDataRequests[requestId] = (response: DataRequestResponse) => resolve(response));
-    makeRequest(requestId, 'messages', id, {'offset': offset, 'n': n});
+    makeRequest(requestId, 'messages', {'id': id, 'offset': offset, 'count': count});
     callback(parseDataResponse(await response)!);
 }
 
 function numToBuf(num: number): Buffer {
-    return Buffer.from([
-        (num >> 24) & 0xff,
-        (num >> 16) & 0xff,
-        (num >> 8) & 0xff,
-        num & 0xff
-    ]);
+    const buffer = Buffer.alloc(4);
+    buffer.writeInt32LE(num);
+    return buffer;
 }
-
-const requestTypeMap: {[type: string]: Buffer} = {
-    "messages": Buffer.from([1]),
-};
 
 function objectToParamBuffer(data: {[param: string]: string | number | Buffer}): Buffer {
     const params: Buffer[] = [];
@@ -98,13 +148,14 @@ function objectToParamBuffer(data: {[param: string]: string | number | Buffer}):
         }
 
         params.push(Buffer.concat([
-            Buffer.from(param), Buffer.from([0]),
+            paramIds[param],
             value!
         ]));
     }
     return Buffer.concat(params);
 }
 
-function makeRequest(requestId: number, type: string, id: string, data: {[param: string]: string | number | Buffer}) {
-    write(Buffer.concat([numToBuf(requestId),requestTypeMap[type],Buffer.from(id),objectToParamBuffer(data)]));
+function makeRequest(requestId: number, type: string, data: {[param: string]: string | number | Buffer}) {
+    const params: Buffer = objectToParamBuffer(data);
+    write(Buffer.concat([numToBuf(5 + params.length), numToBuf(requestId), requestTypeMap[type], params]));
 }
