@@ -3,7 +3,7 @@ import Route from '../types/route';
 import logger from '../util/logger.js';
 
 
-const exampleRoute:Route = ['/send/message', 'POST', async (req:Request,res:Response) => {
+const exampleRoute:Route = ['/create/message', 'POST', async (req:Request,res:Response) => {
 
     await prismaClient.newMessage.create({
         data: {
