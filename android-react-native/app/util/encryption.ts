@@ -59,15 +59,22 @@ export function asymmetricDecrypt(privateKey: Buffer, data: Buffer): Buffer {
     return decrypt(privateKey, data);
 }
 
-export async function generateAesKey(): Promise<string> {
+export async function createKey(pass: string, salt: string): Promise<string> {
+    return await Aes.pbkdf2(pass, salt, 5000, 256, 'sha256');
+}
+
+export async function generateKey(): Promise<string> {
     return await Aes.randomKey(32);
 }
 
-export async function generateAesIv(): Promise<string> {
+export async function generateIv(): Promise<string> {
     return await Aes.randomKey(16);
 }
 
-export async function symmetricEncrypt(key: string, iv: string, data: string): Promise<string> {
+export const generateSalt: () => Promise<string> = generateIv;
+
+export async function symmetricEncrypt(key: string, data: string): Promise<string> {
+    const iv = await generateIv();
     const cipherText: string = await Aes.encrypt(data.toString().padEnd(32," "),key,iv,'aes-256-ctr');
     const hmac: string = await Aes.hmac512(cipherText, key); // 64 bytes long
     return cipherText+iv+hmac;

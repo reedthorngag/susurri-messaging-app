@@ -5,6 +5,7 @@ import * as FS from 'expo-file-system';
 
 import styles from '../styles/styles';
 import { strongHashUser } from '../util/encryption';
+import { buildNewUser, loadFromFile } from '../util/local_db';
 
 function usernameInvalid(username: string) {
     const regex = /.{1,128}/;
@@ -36,6 +37,8 @@ export default function Login() {
     useEffect(() => {
         if (!confirmNewUser) return;
 
+        setLoginError('');
+
         if (passwordInvalid(newPassword)) {
             setLoginError('Password is empty!');
             setConfirmNewUser(false);
@@ -49,41 +52,44 @@ export default function Login() {
         }
         
         const hash = strongHashUser(username+password);
-        FS.writeAsStringAsync(FS.cacheDirectory! + hash+'.user','hello world');
+        buildNewUser(FS.cacheDirectory! + hash+'.user', username, password);
 
     }, [confirmNewUser]);
 
     useEffect(() => {
-        if (!login) return;
+        (async () => {
+            if (!login) return;
 
-        if (!username || !password) {
-            setLoginError((!username ? 'Username' : 'Password') + ' is empty!');
-            setLogin(false);
-            return;
-        }
+            if (!username || !password) {
+                setLoginError((!username ? 'Username' : 'Password') + ' is empty!');
+                setLogin(false);
+                return;
+            }
 
-        if (usernameInvalid(username) || passwordInvalid(password)) {
-            setLoginError((!username ? 'Username' : 'Password') + ' is invalid!');
-            setLogin(false);
-            return;
-        }
+            if (usernameInvalid(username) || passwordInvalid(password)) {
+                setLoginError((!username ? 'Username' : 'Password') + ' is invalid!');
+                setLogin(false);
+                return;
+            }
 
-        const hash = strongHashUser(username+password);
-        FS.getInfoAsync(FS.cacheDirectory! + hash+'.user').then((fileInfo) => {
+            const hash = strongHashUser(username+password);
+            const fileInfo: FS.FileInfo = await FS.getInfoAsync(FS.cacheDirectory! + hash+'.user');
             if (fileInfo.exists && !fileInfo.isDirectory) {
-                console.log(FS.cacheDirectory! + hash+'.user');
-                FS.readAsStringAsync(FS.cacheDirectory! + hash+'.user').then((data: string) => {console.log(data)});
+                if (!await loadFromFile(FS.cacheDirectory! + hash+'.user', password)) {
+                    setLoginError('Invalid password!');
+                    setLogin(false);
+                    return;
+                }
             }
             else {
                 setNewUserPrompt(true);
-                console.log(FS.cacheDirectory! + hash+'.user');
-                FS.writeAsStringAsync(FS.cacheDirectory! + hash+'.user','hello world');
                 setLoginError('User not found!');
                 setLogin(false);
+                return;
             }
-        });
 
-        setLoginError('');
+            setLoginError('');
+        })();
     }, [login]);
 
     return (
