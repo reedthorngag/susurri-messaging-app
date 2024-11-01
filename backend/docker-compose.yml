@@ -1,0 +1,51 @@
+version: '3.4'
+
+services:
+  db:
+    image: postgres:${DB_VER}
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -q -U ${DB_USER} -d ${DB_PATH} 2>/dev/null"]
+      interval: 1s
+      timeout: 10s
+      start_period: 10s
+      start_interval: 1s
+      retries: 10
+
+  scp-backend:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: base
+    volumes:
+      #- ./node_modules:/app/node_modules
+      - ./src:/app/src
+    environment:
+      TSC_NONPOLLING_WATCHER: "0" # make it poll instead of using fs events cos windows sucks ass
+      DB_URL: postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_PATH}
+    depends_on:
+      db:
+        condition: service_healthy
+    links:
+      - db:database
+    ports:
+      - 443:443
+      - 80:80
+    command: sh -c "npm run ${ENV}"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@brodycooper.com
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+

@@ -1,0 +1,39 @@
+datasource db {
+    provider = "postgresql"
+    url = env("DB_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+    previewFeatures = ["fullTextSearch"]
+}
+
+model Message {
+    ChatID          String      @db.VarChar(64)
+    UserID          String      @db.VarChar(64)
+    Message         String      @db.VarChar(16384)
+    Time            DateTime
+    MessageID       Int
+    @@id([ChatID, MessageID])
+}
+
+model NewMessage {
+    ChatID          String      @db.VarChar(64)
+    UserID          String      @db.VarChar(64)
+    Message         String      @db.VarChar(16384)
+    Time            DateTime    @default(now())
+    MessageID       Int
+    @@id([ChatID, MessageID])
+}
+
+model PubKeys {
+    UserID          String      @db.VarChar(64) @id
+    Key             String      @db.VarChar(8192)
+}
+
+model ContactRequests {
+    UserID          String      @db.VarChar(64)
+    ChatID          String      @db.VarChar(64) @unique
+    
+}
+

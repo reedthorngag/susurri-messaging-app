@@ -1,5 +1,17 @@
+# use a whitelist because its easier
 
-docker-compose.yml
+*
+!package.json
+!tsconfig.json
+!.npmrc
+!prisma
+!certificate.crt
+!*.key
+!*.pub
+!.env
 
-
-
+!react-app/.env
+!react-app/index.html
+!react-app/nodemon.json
+!react-app/package.json
+!react-app/vite.config.js
