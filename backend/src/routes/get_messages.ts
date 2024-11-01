@@ -3,7 +3,7 @@ import Route from '../types/route';
 import logger from '../util/logger.js';
 
 
-const exampleRoute:Route = ['/get/messages', 'POST', async (req:Request,res:Response) => {
+const exampleRoute:Route = ['/get/messages', 'GET', async (req:Request,res:Response) => {
 
     const messages = await prismaClient.message.findMany({
         take: req.body.Count,
