@@ -5,7 +5,6 @@ import logger from '../util/logger.js';
 
 const exampleRoute:Route = ['/send/message', 'POST', async (req:Request,res:Response) => {
 
-
     await prismaClient.newMessage.create({
         data: {
             ChatID: req.body.ChatID,

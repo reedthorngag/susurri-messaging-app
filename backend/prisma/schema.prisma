@@ -26,14 +26,13 @@ model NewMessage {
     @@id([ChatID, MessageID])
 }
 
-model PubKeys {
+model PubKey {
     UserID          String      @db.VarChar(64) @id
     Key             String      @db.VarChar(8192)
 }
 
-model ContactRequests {
+model ContactRequest {
     UserID          String      @db.VarChar(64)
     ChatID          String      @db.VarChar(64) @unique
-    
 }
 
