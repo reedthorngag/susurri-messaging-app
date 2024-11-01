@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as FS from 'expo-file-system';
 
 import styles from '../styles/styles';
-import { hashUser } from '../util/encryption';
+import { strongHashUser } from '../util/encryption';
 
 function usernameInvalid(username: string) {
     const regex = /.{1,128}/;
@@ -48,7 +48,7 @@ export default function Login() {
             return;
         }
         
-        const hash = hashUser(username+password);
+        const hash = strongHashUser(username+password);
         FS.writeAsStringAsync(FS.cacheDirectory! + hash+'.user','hello world');
 
     }, [confirmNewUser]);
@@ -68,7 +68,7 @@ export default function Login() {
             return;
         }
 
-        const hash = hashUser(username+password);
+        const hash = strongHashUser(username+password);
         FS.getInfoAsync(FS.cacheDirectory! + hash+'.user').then((fileInfo) => {
             if (fileInfo.exists && !fileInfo.isDirectory) {
                 console.log(FS.cacheDirectory! + hash+'.user');

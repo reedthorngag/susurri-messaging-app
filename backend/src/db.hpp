@@ -32,7 +32,7 @@ class UserHash {
 
 struct Message {
     char* user;
-    int64_t time;
+    uint64_t time;
     unsigned int id;
     int len;
     char* data;

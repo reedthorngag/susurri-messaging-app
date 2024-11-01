@@ -38,8 +38,12 @@ export function verifyMessage(pubKey: Buffer, message: Buffer): boolean {
 // it is just being used as a slightly more secure alternative to a few thousand rounds of sha-512
 const static_salt: string = 'Susurri';
 
-export async function hashUser(user: string): Promise<string> {
+export async function strongHashUser(user: string): Promise<string> {
     return sha512_256(await argon2.hash(user, {salt: Buffer.from(static_salt)}));
+}
+
+export function combinedHash(a: string, b: string) {
+    return sha512_256(a < b ? a : b);
 }
 
 export function generateKeypair(): {privateKey:Buffer, pubKey: Buffer} {

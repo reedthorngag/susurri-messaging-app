@@ -1,6 +1,8 @@
+import { sha512_256 } from 'js-sha512';
 import { addUser, getUser, Message, User } from './cache';
 import { addDataControllerCallback, write } from './connection';
-import {} from './encryption';
+import { combinedHash } from './encryption';
+import { getContactHash, getUserHash } from './local_db';
 
 type NotificationHandler = (title: string, message: string, error: boolean) => void;
 type DmUpdateHandler = (message: Message) => void;
@@ -16,12 +18,15 @@ type DataRequestResponse = {
 const requestTypeMap: {[type: string]: Buffer} = {
     "ping": Buffer.from([0]),
     "messages": Buffer.from([1]),
-    "message": Buffer.from([2]),
+    "contactInitiations": Buffer.from([2]),
+    "initiateContactRequest": Buffer.from([3]),
+    "message": Buffer.from([4]),
 };
 
 const requestTypeStringMap: Array<string> = [
     "pong",
     "messages",
+    "contactInitiations",
     "message"
 ];
 
@@ -29,7 +34,10 @@ const paramIds: {[param: string]: Buffer} = {
     "id": Buffer.from([0]),
     "offset": Buffer.from([1]),
     "count": Buffer.from([2]),
-    "message": Buffer.from([3]),
+    "data": Buffer.from([3]),
+    "time": Buffer.from([4]),
+    "messageId": Buffer.from([5]),
+    "user": Buffer.from([6]),
 };
 
 
@@ -37,11 +45,37 @@ let currentDataRequestId = 0;
 
 const pendingDataRequests: {[requestId: number]: (response: DataRequestResponse) => void} = {};
 
+let packetSize: number | undefined;
+let readSize: number | undefined;
+let packetParts: Array<Buffer> | undefined;
+
 function dataHandler(data: Buffer) {
 
-    const type: string = requestTypeStringMap[data.readUint8(4)];
+    if (packetSize) {
+        readSize! += data.length;
+        packetParts!.push(data);
+        if (packetSize >= readSize!) {
+            data = Buffer.concat(packetParts!);
+            const type: string = requestTypeStringMap[data.readUint8(4)];
 
-    pendingDataRequests[data.readUint32LE(0)]({type: type, data: data.subarray(5,data.length)});
+            pendingDataRequests[data.readUint32LE(0)]({type: type, data: data.subarray(5,data.length)});
+
+            packetSize = undefined;
+            readSize = undefined;
+            packetParts = undefined;
+        }
+    } else {
+        packetSize = data.readInt32LE(0);
+        if (data.length > packetSize) {
+            const type: string = requestTypeStringMap[data.readUint8(4)];
+
+            pendingDataRequests[data.readUint32LE(0)]({type: type, data: data.subarray(5,data.length)});
+            packetSize = undefined;
+        } else {
+            readSize = data.length;
+            packetParts = [data];
+        }
+    }
 }
 
 addDataControllerCallback(dataHandler);
@@ -102,13 +136,33 @@ function parseMessages(data: Buffer): Array<Message> {
     return messages;
 }
 
-function parseDataResponse(response: DataRequestResponse): Array<Message> | undefined {
+function parseContactInitiations(data: Buffer): Array<string> {
+
+    let num = data.readInt32LE(0);
+
+    const userIds: Array<string> = [];
+
+    let n = 4;
+    while (num--) {
+        let len: number = data.readInt8(n++);
+
+        const user: string = data.subarray(n, n += len).toString();
+
+        userIds.push(user);
+    }
+
+    return userIds;
+}
+
+function parseDataResponse(response: DataRequestResponse): Array<Message> | Array<string> | undefined {
 
     switch (response.type) {
         case 'pong':
             break;
         case 'messages':
             return parseMessages(response.data);
+        case 'contactInitiations':
+            return parseContactInitiations(response.data);
     }
 }
 
@@ -120,7 +174,26 @@ export async function requestMessages(id: string, offset: number, count: number,
     const requestId = ++currentDataRequestId;
     const response: Promise<DataRequestResponse> = new Promise((resolve) => pendingDataRequests[requestId] = (response: DataRequestResponse) => resolve(response));
     makeRequest(requestId, 'messages', {'id': id, 'offset': offset, 'count': count});
-    callback(parseDataResponse(await response)!);
+    callback(parseDataResponse(await response)! as Array<Message>);
+}
+
+export async function requestContactInitiationsAsync(): Promise<Array<string>> {
+    return new Promise((resolve) => requestContactInitiations((contacts: Array<string>) => {resolve(contacts)}));
+}
+
+export async function requestContactInitiations(callback: (contacts: Array<string>) => void) {
+    const requestId = ++currentDataRequestId;
+    const response: Promise<DataRequestResponse> = new Promise((resolve) => pendingDataRequests[requestId] = (response: DataRequestResponse) => resolve(response));
+    makeRequest(requestId, 'contactInitializations', {'id': getContactHash()});
+    callback(parseDataResponse(await response)! as Array<string>);
+}
+
+export function sendMessage(id: string, userId: string, message: string, time: number, messageId: number) {
+    makeRequest(0,"message",{id: id, data: message, time: time, messageId: messageId, user: userId})
+}
+
+export function makeContactRequest(id: string) {
+    makeRequest(0,"initiateContactRequest",{id: id, user: combinedHash(id, getUserHash())});
 }
 
 function numToBuf(num: number): Buffer {
