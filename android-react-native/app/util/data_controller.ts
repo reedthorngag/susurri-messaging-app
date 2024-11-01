@@ -59,11 +59,11 @@ export async function requestMessages(id: string, offset: number, count: number,
     });
 }
 
-export async function requestNewMessagesAsync(id: string, offset: number, count: number): Promise<Array<Message>> {
-    return new Promise((resolve) => requestNewMessages(id, offset, count, (messages: Array<Message>) => {resolve(messages)}));
+export async function requestNewMessagesAsync(id: string): Promise<Array<Message>> {
+    return new Promise((resolve) => requestNewMessages(id, (messages: Array<Message>) => {resolve(messages)}));
 }
 
-export async function requestNewMessages(id: string, offset: number, count: number, callback: (messages: Array<Message>) => void) {
+export async function requestNewMessages(id: string, callback: (messages: Array<Message>) => void) {
     fetch('http://'+domain+'/api/get/new_messages', {
         method: 'GET',
         headers: {
@@ -80,11 +80,11 @@ export async function requestNewMessages(id: string, offset: number, count: numb
     });
 }
 
-export async function requestAllNewMessagesAsync(id: string, offset: number, count: number): Promise<{[chat: string]: Array<Message>}> {
-    return new Promise((resolve) => requestAllNewMessages(id, offset, count, (chats: {[chat: string]: Array<Message>}) => {resolve(chats)}));
+export async function requestAllNewMessagesAsync(id: string): Promise<{[chat: string]: Array<Message>}> {
+    return new Promise((resolve) => requestAllNewMessages(id, (chats: {[chat: string]: Array<Message>}) => {resolve(chats)}));
 }
 
-export async function requestAllNewMessages(id: string, offset: number, count: number, callback: (chats: {[chat: string]: Array<Message>}) => void) {
+export async function requestAllNewMessages(id: string, callback: (chats: {[chat: string]: Array<Message>}) => void) {
     fetch('http://'+domain+'/api/get/all_new_messages', {
         method: 'GET',
         headers: {

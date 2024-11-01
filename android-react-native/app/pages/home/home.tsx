@@ -6,11 +6,10 @@ import { ScrollView } from 'react-native-gesture-handler';
 import styles from '../../styles/styles';
 import Header from './header';
 import DM from './dm';
+import { localDB } from '@/app/util/local_db';
 
 export default function Home() {
 	const navigator = useNavigation();
-
-	const dms: string[] = ['A User', 'long test name'];
 
 	return (
 		<View style={[styles.flexTop, styles.background]}>
@@ -23,7 +22,7 @@ export default function Home() {
 					</TouchableOpacity>
 				</View>
 				<ScrollView style={{maxHeight: '80%', overflow: 'scroll', width: '90%'}}>
-					{dms.map(dm => <DM name={dm} key={dm} />)}
+					{localDB!.contacts.map(user => <DM user={user} />)}
 				</ScrollView>
 			</View>
 		</View>

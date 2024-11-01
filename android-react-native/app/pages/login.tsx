@@ -21,8 +21,6 @@ function passwordInvalid(password: string) {
 export default function Login() {
     const navigator = useNavigation();
 
-    const usernameElemRef = useRef({});
-
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [login, setLogin] = useState(false);
@@ -53,7 +51,7 @@ export default function Login() {
         
         const hash = strongHashUser(username+password);
         buildNewUser(FS.cacheDirectory! + hash+'.user', username, password);
-
+        navigator.navigate("Home" as never);
     }, [confirmNewUser]);
 
     useEffect(() => {
@@ -80,6 +78,7 @@ export default function Login() {
                     setLogin(false);
                     return;
                 }
+                navigator.navigate("Home" as never);
             }
             else {
                 setNewUserPrompt(true);

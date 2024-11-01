@@ -13,7 +13,7 @@ type DB = {
     }>
 }
 
-let localDB: DB | undefined;
+export let localDB: DB | undefined;
 let currFile: string;
 let currPass: string;
 
