@@ -71,7 +71,8 @@ export async function requestNewMessages(id: string, callback: (messages: Array<
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            ChatID: id
+            ChatID: id,
+            UserID: getUserHash()
         }),
     }).then(async res => {
         const messages: Array<Message> = [];

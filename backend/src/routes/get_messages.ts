@@ -9,7 +9,10 @@ const exampleRoute:Route = ['/get/messages', 'GET', async (req:Request,res:Respo
         take: req.body.Count,
         skip: req.body.Offset,
         where: {
-            UserID: req.body.ChatID,
+            ChatID: req.body.ChatID,
+        },
+        orderBy: {
+            MessageID: 'asc'
         }
     });
 
